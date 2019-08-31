@@ -33,6 +33,9 @@ func HandleReverse(w http.ResponseWriter, r *http.Request) {
 }
 
 func reverse(input string) string {
+	if len(input) == 1 || len(input) == 0 {
+		return input
+	}
 	output := []byte(input)
 	l, r := 0, len(input)-1
 	for l < r {
