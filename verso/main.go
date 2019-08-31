@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	addr string = ":" + getenv("API_PORT", "8000")
+	addr string = ":" + getenv("API_PORT", "80")
 )
 
 func getenv(key, fallback string) string {
