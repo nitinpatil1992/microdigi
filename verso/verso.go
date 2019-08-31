@@ -10,13 +10,16 @@ type Request struct {
 }
 
 func HandleReverse(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
-		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
-	}
-	decoder := json.NewDecoder(r.Body)
-
 	var request Request
 	response := make(map[string]interface{})
+
+	if r.Method != "POST" {
+		response["message"] = "Method not allowed"
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+	decoder := json.NewDecoder(r.Body)
 
 	err := decoder.Decode(&request)
 	if err != nil {
