@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	apiHost string = getenv("API_HOST", "127.0.0.1:8000")
+	addr string = ":" + getenv("API_PORT", "8000")
 )
 
 func getenv(key, fallback string) string {
@@ -19,8 +19,7 @@ func getenv(key, fallback string) string {
 }
 
 func main() {
-	//apiHost := os.Getenv("API_HOST")
 	http.HandleFunc("/reverse", HandleReverse)
-	fmt.Println("starting server on", apiHost)
-	http.ListenAndServe(apiHost, nil)
+	fmt.Println("starting server on port", addr)
+	http.ListenAndServe(addr, nil)
 }
