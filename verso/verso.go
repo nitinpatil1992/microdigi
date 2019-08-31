@@ -20,7 +20,10 @@ func HandleReverse(w http.ResponseWriter, r *http.Request) {
 
 	err := decoder.Decode(&request)
 	if err != nil {
-		panic("Invalid request data")
+		response["message"] = "Invalid request data"
+		w.WriteHeader(http.StatusUnprocessableEntity)
+		json.NewEncoder(w).Encode(response)
+		return
 	}
 
 	response["message"] = reverse(request.Message)
