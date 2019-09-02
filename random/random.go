@@ -46,7 +46,7 @@ func HandleRandom(w http.ResponseWriter, r *http.Request) {
 	cacheExists, _ := redisClient.Exists(request.Message).Result()
 
 	if cacheExists == 1 {
-		log.Info("Cache hit occurred ", cacheExists)
+		log.Info("Cache hit occurred")
 
 		response["message"], _ = redisClient.HGet(request.Message, "message").Result()
 		response["rand"], _ = redisClient.HGet(request.Message, "rand").Result()
@@ -116,6 +116,7 @@ func callReverseApi(message string) (<-chan string, <-chan error) {
 		resp, err := client.Do(req)
 
 		if err != nil {
+			log.Warn("Failed to get the response from reverse api")
 			errs <- err
 			close(out)
 			close(errs)
@@ -123,6 +124,7 @@ func callReverseApi(message string) (<-chan string, <-chan error) {
 		}
 		body, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
+			log.Warn("Failed to read response obtained from reverse api")
 			errs <- err
 			close(out)
 			close(errs)
@@ -132,6 +134,6 @@ func callReverseApi(message string) (<-chan string, <-chan error) {
 		close(out)
 		close(errs)
 	}()
-
+	log.Debug("Reverse api call successful")
 	return out, errs
 }
