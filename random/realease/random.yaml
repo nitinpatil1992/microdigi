@@ -17,5 +17,5 @@ spec:
     deployment:
       image:
         repository: patil16nit/microdigi-random
-        tag: v1
+        tag: v3
       replicaCount: 1
