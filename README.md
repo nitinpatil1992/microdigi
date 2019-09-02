@@ -36,6 +36,8 @@ $ minikube start
 $ kubectl create ns diginex
 
 $ helm init
+# wait for tiller container to spin up 
+$ kubectl get po -l'name=tiller' -n kube-system --watch
 
 $ git clone https://github.com/nitinpatil1992/digihelm.git
 
@@ -48,6 +50,7 @@ $ kubectl get all -n diginex
 $ cd ../random
 
 $ helm install --name=random --namespace=diginex .
+# wait for random web service to spin up
 
 $ kubectl get all -n diginex
 
