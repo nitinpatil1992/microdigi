@@ -5,9 +5,13 @@ There are two main webservicess
 1. random webservice (it includes redis cache) : exposes POST /api 
 2. verso webservice : exposes POST /reverse 
 
-The verso service api reverse is not exposed directly to end users.
+The verso service api `reverse` is not exposed directly to end users.
 
 # Runing webservices
+
+```
+$ git clone https://github.com/nitinpatil1992/microdigi.git
+```
 
 ### Local execution
 
