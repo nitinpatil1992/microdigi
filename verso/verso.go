@@ -19,7 +19,9 @@ func HandleReverse(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(log.Fields{
 			"Current request method is ": r.Method,
 		}).Warn("Method not allowed")
+
 		response["message"] = "Method not allowed"
+
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		json.NewEncoder(w).Encode(response)
 		return
@@ -47,12 +49,19 @@ func HandleReverse(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
+/*
+ * string reversal core logic
+ * input : string
+ * return : string
+ */
 func reverse(input string) string {
 	if len(input) == 1 || len(input) == 0 {
 		return input
 	}
+
 	output := []byte(input)
 	l, r := 0, len(input)-1
+
 	for l < r {
 		output[l], output[r] = output[r], output[l]
 		r--
