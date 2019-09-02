@@ -54,5 +54,5 @@ $ helm install --name=random --namespace=diginex .
 
 $ kubectl get all -n diginex
 
-$ curl -X POST -d '{"message":"0123456"}' localhost:30501/api
+$ curl -X POST -d '{"message":"0123456"}'  $(minikube ip):30501/api
 ```
