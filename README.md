@@ -43,12 +43,9 @@ $ kubectl get all -n diginex
 
 $ cd ../random
 
-$ $ helm install --name=random --namespace=diginex .
+$ helm install --name=random --namespace=diginex .
 
 $ kubectl get all -n diginex
 
 $ curl -X POST -d '{"message":"0123456"}' localhost:30501/api
-
 ```
-
-
