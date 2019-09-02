@@ -1,0 +1,32 @@
+version: '3'
+services:
+  random:
+    build:
+      context: ./random
+    environment:
+      - REVERSE_API_URI=http://verso/reverse
+      - REDIS_HOST=redishost:6379
+    depends_on:
+      - redishost
+      - verso
+    ports:
+      - 9000:80
+    networks:
+      - diginex
+      - diginex-cache
+
+  verso:
+    build:
+      context: ./verso
+    tty: true
+    networks:
+      - diginex
+
+  redishost:
+    image: redis:4-alpine
+    networks:
+      - diginex-cache
+
+networks:
+  diginex:
+  diginex-cache:

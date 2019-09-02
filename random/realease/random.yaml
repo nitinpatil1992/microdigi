@@ -1,0 +1,21 @@
+---
+apiVersion: flux.weave.works/v1beta1
+kind: HelmRelease
+metadata:
+  name: random
+  namespace: diginex
+  annotations:
+    flux.weave.works/automated: "true"
+    flux.weave.works/tag.chart-image: semver:~0.4
+spec:
+  releaseName: random
+  chart:
+    git: git@github.com:nitinpatil1992/digihelm
+    path: charts/random
+    ref: master
+  values:
+    deployment:
+      image:
+        repository: patil16nit/microdigi-random
+        tag: v1
+      replicaCount: 1

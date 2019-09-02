@@ -1,0 +1,21 @@
+---
+apiVersion: flux.weave.works/v1beta1
+kind: HelmRelease
+metadata:
+  name: verso
+  namespace: diginex
+  annotations:
+    flux.weave.works/automated: "true"
+    flux.weave.works/tag.chart-image: semver:~0.4
+spec:
+  releaseName: verso
+  chart:
+    git: git@github.com:nitinpatil1992/digihelm
+    path: charts/verso
+    ref: master
+  values:
+    deployment:
+      image:
+        repository: patil16nit/microdigi-reverse
+        tag: v1
+      replicaCount: 1

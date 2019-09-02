@@ -3,6 +3,8 @@ package main
 import (
 	"encoding/json"
 	"net/http"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type Request struct {
@@ -14,6 +16,9 @@ func HandleReverse(w http.ResponseWriter, r *http.Request) {
 	response := make(map[string]interface{})
 
 	if r.Method != "POST" {
+		log.WithFields(log.Fields{
+			"Current request method is ": r.Method,
+		}).Warn("Method not allowed")
 		response["message"] = "Method not allowed"
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		json.NewEncoder(w).Encode(response)
@@ -23,11 +28,18 @@ func HandleReverse(w http.ResponseWriter, r *http.Request) {
 
 	err := decoder.Decode(&request)
 	if err != nil {
+		log.WithFields(log.Fields{
+			"Invalid request data  ": err.Error(),
+		}).Warn("Error parsing request")
 		response["message"] = "Invalid request data"
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		json.NewEncoder(w).Encode(response)
 		return
 	}
+
+	log.WithFields(log.Fields{
+		"input": request.Message,
+	}).Debug("Reversing string...")
 
 	response["message"] = reverse(request.Message)
 

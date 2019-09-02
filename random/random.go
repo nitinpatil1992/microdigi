@@ -15,10 +15,6 @@ type ReverseApiChannel struct {
 	Error   error  `json:"error"`
 }
 
-type Message1 struct {
-	msg string `json:"message"`
-}
-
 type Request struct {
 	Message string `json:"message"`
 }
@@ -30,27 +26,46 @@ type ReverseApiResponse struct {
 func HandleRandom(w http.ResponseWriter, r *http.Request) {
 	var request Request
 	response := make(map[string]interface{})
+
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&request)
+
 	if err != nil {
 		log.WithFields(log.Fields{
 			"Invalid request data ": err.Error(),
 		}).Warn("Error parsing request")
+
 		response["message"] = "Invalid request data"
+
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		json.NewEncoder(w).Encode(response)
 		return
 	}
 
-	// channel to connect with webservice which returns string reverse
+	// check if cache exists
+	cacheExists, _ := redisClient.Exists(request.Message).Result()
 
+	if cacheExists == 1 {
+		log.Info("Cache hit occurred ", cacheExists)
+
+		response["message"], _ = redisClient.HGet(request.Message, "message").Result()
+		response["rand"], _ = redisClient.HGet(request.Message, "rand").Result()
+
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	// channel to connect with webservice which returns string reverse
 	apiResponseSuccess, apiResponseError := callReverseApi(request.Message)
 
 	if err := <-apiResponseError; err != nil {
 		log.WithFields(log.Fields{
 			"Error occurred ": apiResponseError,
-		}).Error("Error parsing request")
+		}).Error("Error calling reverse webservice")
+
 		response["message"] = "Reverse string webservice unavailable"
+
 		w.WriteHeader(http.StatusServiceUnavailable)
 		json.NewEncoder(w).Encode(response)
 		return
@@ -61,26 +76,42 @@ func HandleRandom(w http.ResponseWriter, r *http.Request) {
 
 	var apiResp ReverseApiResponse
 	err = json.Unmarshal([]byte(msg), &apiResp)
+	randomValue := rand.Float64()
+
 	response["message"] = apiResp.Message
+	response["rand"] = randomValue
 
-	response["rand"] = rand.Float64()
+	//set cache
+	_ = redisClient.HSet(request.Message, "message", apiResp.Message)
+	_ = redisClient.HSet(request.Message, "rand", randomValue)
+
 	w.WriteHeader(http.StatusOK)
-
 	json.NewEncoder(w).Encode(response)
 }
 
 func callReverseApi(message string) (<-chan string, <-chan error) {
 
-	data := make(map[string]interface{})
-	data["message"] = message
-	jsonValue, _ := json.Marshal(data)
-
 	out := make(chan string, 1)
 	errs := make(chan error, 1)
 
 	go func() {
+		data := make(map[string]interface{})
+		data["message"] = message
+		jsonValue, _ := json.Marshal(data)
+
 		req, err := http.NewRequest("POST", REVERSE_API_URI, bytes.NewBuffer(jsonValue))
+		if err != nil {
+			log.WithFields(log.Fields{
+				"err": err,
+			}).Warn("request error")
+
+			errs <- err
+			close(out)
+			close(errs)
+			return
+		}
 		client := &http.Client{}
+
 		log.Info("Calling reverse api with data ", bytes.NewBuffer(jsonValue))
 		resp, err := client.Do(req)
 
